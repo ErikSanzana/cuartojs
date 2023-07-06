@@ -42,110 +42,63 @@ const propiedadesJSON = [
     m: 500,
   },
 ];
-
 let h4Element = document.querySelector("#Propiedades h4");
 h4Element.querySelector("span").textContent = "0";
-/* inicializamos el total */
-
 document.addEventListener('DOMContentLoaded', function() {
-  var total = 0;
+  let total = 0;
   let cantidad = document.getElementById('cantidad');
   let desde = document.getElementById('desde');
   let hasta = document.getElementById('hasta');
-  /* buscamos el valor de los ids de nuestro html */
-
   let buscarBtn = document.getElementById('buscar');
-  /*  definimos el boton buscar */
   buscarBtn.addEventListener('click', function(event) {
-    /* agregamos el evento click con una funcion */
     event.preventDefault();
-    /* evitamos que se cargue por default */
-
     let cantidadValue = parseInt(cantidad.value);
-    /* escogemos el valor */
     let desdeValue = parseInt(desde.value);
-    /* escogemos el valor */
     let hastaValue = parseInt(hasta.value);
-    /* escogemos el valor */
-
     if (isNaN(cantidadValue) || isNaN(desdeValue) || isNaN(hastaValue)) {
-      /* verifica si estan en blancos para no tener problemas de sintaxis y cosas raras */
       alert("Faltan datos importantes para continuar con la solicitud");
-      /* mando una alerta por que los usuarios no entenderan a menos que se les avise */
     } else {
       total = 0;
-      /* lo reiniciamos a 0 */
-     
       let padre = document.getElementById("propiedades");
       while (padre.firstChild) {
         padre.removeChild(padre.firstChild);
       }
-      /* reseteamos para partir de 0 y asi no agregas un div sobre otro */
-
-      for (let i = 0; i < propiedadesJSON.length; i++) {
-        /* a recorrer el json de arriba  */
-        if (propiedadesJSON[i].rooms >= cantidadValue) {
-          /* aca indicamos que si la casa de esa vuelta la cantidad de cuartos cumple o no */
-          if (propiedadesJSON[i].m >= desdeValue && propiedadesJSON[i].m <= hastaValue) {
-            /* ahora debe cumplir con el minimo y con el maximo */
-            let elemento = propiedadesJSON[i];
-            total++;
-            /* le sumas 1 al total */
-
-            let template = document.createElement("template");
-            /* creando template */
-            template.innerHTML = `
-              <div class="propiedad">
-                <div class="img" style="background-image: url('${elemento.src}')"></div>
-                <section>
-                  <h5>${elemento.name}</h5>
-                  <div class="d-flex justify-content-between">
-                    <p>Cuartos: ${elemento.rooms}</p>
-                    <p>Metros: ${elemento.m}</p>
-                  </div>
-                  <p class="my-3">${elemento.description}</p>
-                  <button class="btn btn-info">Ver más</button>
-                </section>
-              </div>
-            `;
-/* base del template */
-            let clone = document.importNode(template.content, true);
-            /* aca es un nodo donde clonamos el template y lo vamos a mandar al padre */
-            padre.appendChild(clone);
-          }
+      for (const propiedad of propiedadesJSON) {
+        if (propiedad.rooms >= cantidadValue && propiedad.m >= desdeValue && propiedad.m <= hastaValue) {
+          total++;
+          let template = createPropiedadTemplate(propiedad);
+          let clone = document.importNode(template.content, true);
+          padre.appendChild(clone);
         }
       }
-
       h4Element.querySelector("span").textContent = total.toString();
-      /* agregamos el total de resultados */
       cantidad.value = ""; 
       desde.value = ""; 
       hasta.value = "";
-      /* reseteamos estas 3 cosas para que no joda mas  */
     }
   });
   var padre = document.getElementById("propiedades");
-  for (var i = 0; i < propiedadesJSON.length; i++) {
-    var elemento = propiedadesJSON[i];
-
-    var template = document.createElement("template");
-    template.innerHTML = `
-      <div class="propiedad">
-        <div class="img" style="background-image: url('${elemento.src}')"></div>
-        <section>
-          <h5>${elemento.name}</h5>
-          <div class="d-flex justify-content-between">
-            <p>Cuartos: ${elemento.rooms}</p>
-            <p>Metros: ${elemento.m}</p>
-          </div>
-          <p class="my-3">${elemento.description}</p>
-          <button class="btn btn-info">Ver más</button>
-        </section>
-      </div>
-    `;
-
-    var clone = document.importNode(template.content, true);
+  for (const propiedad of propiedadesJSON) {
+    let template = createPropiedadTemplate(propiedad);
+    let clone = document.importNode(template.content, true);
     padre.appendChild(clone);
   }
-  /* mostrar todo de manera predeterminada como dijo el compañero menos mal por que soy pesimo leyendo instrucciones */
 });
+function createPropiedadTemplate(propiedad) {
+  let template = document.createElement("template");
+  template.innerHTML = `
+    <div class="propiedad">
+      <div class="img" style="background-image: url('${propiedad.src}')"></div>
+      <section>
+        <h5>${propiedad.name}</h5>
+        <div class="d-flex justify-content-between">
+          <p>Cuartos: ${propiedad.rooms}</p>
+          <p>Metros: ${propiedad.m}</p>
+        </div>
+        <p class="my-3">${propiedad.description}</p>
+        <button class="btn btn-info">Ver más</button>
+      </section>
+    </div>
+  `;
+  return template;
+}
